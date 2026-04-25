@@ -1,0 +1,27 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int main() {
+    char *s;
+    s = malloc(1024 * sizeof(char));
+    
+    // Read the entire line of input, including spaces
+    // [^\n] tells scanf to read everything until it hits a newline
+    scanf("%[^\n]", s);
+    
+    // Resize memory to fit the actual string length (optional but good practice)
+    s = realloc(s, strlen(s) + 1);
+
+    // Get the first "token" (word)
+    char *word = strtok(s, " ");
+
+    // Continue finding tokens until no more are found
+    while (word != NULL) {
+        printf("%s\n", word);
+        word = strtok(NULL, " ");
+    }
+
+    free(s);
+    return 0;
+}
