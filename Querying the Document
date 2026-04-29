@@ -1,0 +1,71 @@
+include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include<assert.h>
+#define MAX_CHARACTERS 1005
+#define MAX_PARAGRAPHS 5
+// Helper function to split a string by a delimiter into a list of strings
+char** split_text(char* text, char delim, int* count) {
+    char** result = NULL;
+    int n = 0;
+    char* start = text;
+    char* ptr = text;
+
+    while (1) {
+        if (*ptr == delim || *ptr == '\0') {
+            result = realloc(result, sizeof(char*) * (n + 1));
+            int len = ptr - start;
+            result[n] = malloc(len + 1);
+            strncpy(result[n], start, len);
+            result[n][len] = '\0';
+            n++;
+            if (*ptr == '\0') break;
+            start = ptr + 1;
+        }
+        ptr++;
+    }
+    *count = n;
+    return result;
+}
+
+char**** get_document(char* text) {
+    int p_count;
+    // Level 1: Split into Paragraphs by '\n'
+    char** paragraphs_str = split_text(text, '\n', &p_count);
+    char**** doc = malloc(sizeof(char***) * p_count);
+
+    for (int i = 0; i < p_count; i++) {
+        int s_count;
+        // Level 2: Split Paragraph into Sentences by '.'
+        char** sentences_str = split_text(paragraphs_str[i], '.', &s_count);
+        
+        // Remove trailing empty sentence created by the final '.'
+        if (s_count > 0 && strlen(sentences_str[s_count - 1]) == 0) {
+            s_count--;
+        }
+
+        doc[i] = malloc(sizeof(char**) * s_count);
+        for (int j = 0; j < s_count; j++) {
+            int w_count;
+            // Level 3: Split Sentence into Words by ' '
+            doc[i][j] = split_text(sentences_str[j], ' ', &w_count);
+        }
+        // Cleanup intermediate string arrays
+        free(paragraphs_str[i]);
+    }
+    free(paragraphs_str);
+    return doc;
+}
+
+char*** kth_paragraph(char**** document, int k) {
+    return document[k-1];
+}
+
+char** kth_sentence_in_mth_paragraph(char**** document, int k, int m) {
+    return document[m-1][k-1];
+}
+
+char* kth_word_in_mth_sentence_of_nth_paragraph(char**** document, int k, int m, int n) {
+    return document[n-1][m-1][k-1];
+}
+
