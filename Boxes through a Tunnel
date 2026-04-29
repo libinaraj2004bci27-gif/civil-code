@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_HEIGHT 41
+/**
+ * Define the box structure
+ */
+struct box {
+    int length;
+    int width;
+    int height;
+};
+
+typedef struct box box;
+
+/**
+ * Function to calculate the volume of a box
+ * Volume = length * width * height
+ */
+int get_volume(box b) {
+    return b.length * b.width * b.height;
+}
+
+/**
+ * Function to check if the box can pass through the tunnel
+ * Returns 1 if height is strictly less than 41, 0 otherwise
+ */
+int is_lower_than_max_height(box b) {
+    if (b.height < MAX_HEIGHT) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+
+int main()
