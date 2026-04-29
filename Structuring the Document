@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#define MAX_CHARACTERS 1005
+#define MAX_PARAGRAPHS 5
+
+struct word {
+    char* data;
+};
+
+struct sentence {
+    struct word* data;
+    int word_count;//denotes number of words in a sentence
+};
+
+struct paragraph {
+    struct sentence* data  ;
+    int sentence_count;//denotes number of sentences in a paragraph
+};
+
+struct document {
+    struct paragraph* data;
+    int paragraph_count;//denotes number of paragraphs in a document
+};
+struct word get_word(char* s) {
+    struct word w;
+    w.data = strdup(s);
+    return w;
+}
+
+// Helper function to create a sentence from a string of words
+struct sentence get_sentence(char* s) {
+    struct sentence sen;
+    sen.data = NULL;
+    sen.word_count = 0;
+    
+    char* word_str = strtok(s, " ");
+    while (word_str != NULL) {
+        sen.data = realloc(sen.data, sizeof(struct word) * (sen.word_count + 1));
+        sen.data[sen.word_count++] = get_word(word_str);
+        word_str = strtok(NULL, " ");
+    }
+    return sen;
+}
+
+// Helper function to create a paragraph from a string of sentences
+struct paragraph get_paragraph(char* s) {
+    struct paragraph para;
+    para.data = NULL;
+    para.sentence_count = 0;
+    
+    // We can't use strtok directly here because get_sentence uses it too.
+    // strtok is NOT thread-safe/re-entrant. We use a manual split or strsep.
+    char* start = s;
+    char* end = strchr(start, '.');
+    while (end != NULL) {
+        *end = '\0'; // Temporarily terminate sentence
+        para.data = realloc(para.data, sizeof(struct sentence) * (para.sentence_count + 1));
+        para.data[para.sentence_count++] = get_sentence(start);
+        start = end + 1;
+        end = strchr(start, '.');
+    }
+    return para;
+}
+
+struct document get_document(char* text) {
+    struct document doc;
+    doc.data = NULL;
+    doc.paragraph_count = 0;
+    
+    char* start = text;
+    char* end = strchr(start, '\n');
+    while (end != NULL) {
+        *end = '\0';
+        doc.data = realloc(doc.data, sizeof(struct paragraph) * (doc.paragraph_count + 1));
+        doc.data[doc.paragraph_count++] = get_paragraph(start);
+        start = end + 1;
+        end = strchr(start, '\n');
+    }
+    // Handle last paragraph
+    doc.data = realloc(doc.data, sizeof(struct paragraph) * (doc.paragraph_count + 1));
+    doc.data[doc.paragraph_count++] = get_paragraph(start);
+    
+    return doc;
+}
+
+struct word kth_word_in_mth_sentence_of_nth_paragraph(struct document doc, int k, int m, int n) {
+    return doc.data[n-1].data[m-1].data[k-1];
+}
+
+struct sentence kth_sentence_in_mth_paragraph(struct document doc, int k, int m) {
+    return doc.data[m-1].data[k-1];
+}
+
+struct paragraph kth_paragraph(struct document doc, int k) {
+    return doc.data[k-1];
+}
